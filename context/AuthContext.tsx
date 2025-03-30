@@ -16,12 +16,14 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<{ token: string } | null>(null);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
 		if (token) {
 			setUser({ token });
 		}
+		setLoading(false);
 	}, []);
 
 	const login = (token: string) => {
@@ -36,5 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		setUser(null);
 	};
 
-	return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+	return <AuthContext.Provider value={{ user, login, logout }}>{!loading && children}</AuthContext.Provider>;
 };
+
+export const useAuth = () => useContext(AuthContext);
