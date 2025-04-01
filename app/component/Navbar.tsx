@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
 	const [isOpen, setIsOpen] = useState(false);
+	const { logout } = useAuth();
 
 	return (
 		<nav className="bg-surface shadow-md text-textDark">
@@ -30,7 +32,8 @@ const Navbar = () => {
 							Learning Material
 						</Link>
 						<Link
-							href="/login"
+							onClick={() => logout()}
+							href="/"
 							className="hover:text-primary transition flex items-center justify-center h-full  hover:bg-blue-100 rounded-md">
 							Log Out
 						</Link>
@@ -84,9 +87,10 @@ const Navbar = () => {
 						Contact
 					</Link>
 					<Link
-						href="/login"
-						className="block text-white bg-accent px-4 py-2 rounded-xl hover:bg-highlight transition">
-						Login
+						onClick={() => logout()}
+						href="/"
+						className="hover:text-primary transition flex items-center justify-center h-full  hover:bg-blue-100 rounded-md">
+						Log Out
 					</Link>
 				</div>
 			)}
