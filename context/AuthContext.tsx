@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { AppDispatch } from "@/lib/store";
+import { useDispatch } from "react-redux";
 
 interface AuthContextType {
 	user: { token: string } | null;
@@ -17,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<{ token: string } | null>(null);
 	const [loading, setLoading] = useState(true);
+	const dispatch = useDispatch<AppDispatch>();
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
@@ -35,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const logout = () => {
 		localStorage.removeItem("token");
 		document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+		dispatch({ type: "RESET_STATE" });
 		setUser(null);
 	};
 

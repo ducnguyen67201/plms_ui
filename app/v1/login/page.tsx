@@ -3,12 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-
 import { loginUser } from "@/services/auth";
+
+import { useAppDispatch } from "@/lib/store/hooks";
+import { setUserData } from "@/lib/store/slices/loginSlice";
 
 export default function LoginPage() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const dispatch = useAppDispatch();
+
 	const { login } = useAuth();
 	const router = useRouter();
 
@@ -18,6 +22,7 @@ export default function LoginPage() {
 			const response = await loginUser(username, password);
 			if (response.result === "success") {
 				login(response.data.user_id.toString());
+				dispatch(setUserData(response.data));
 				router.push("/");
 			} else {
 				console.log("Invalid credentials");
