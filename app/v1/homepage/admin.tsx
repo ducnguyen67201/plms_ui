@@ -1,50 +1,50 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { getAllProblem } from "@/services/problem";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/lib/store/hooks";
+import { setProblems } from "@/lib/store/slices/problemSlice";
 
-type Difficulty = 1 | 2 | 3;
+// Types
+type SelectedView = "PROBLEM" | "DISCUSSION" | "LEARNING_MATERIAL";
 
-interface BaseCardProps {
-	id: string;
+interface Problem {
+	problem_id: number;
+	contest_id: number;
 	title: string;
 	description: string;
-	created_by?: string;
-	date?: string;
-	type?: string;
-	difficulty?: Difficulty;
-	repeatCount?: number;
-	category?: string[];
-	contextType: "PROBLEM" | "LEARNING_MATERIAL" | "DISCUSSION";
+	dififculty_level: string;
+	repeated_times: number;
+	type: string;
 }
-const sampleProblems = [
-	{
-		problem_id: "1",
-		title: "Fix the Login Bug",
-		description: "Users are unable to log in due to a server error.",
-		difficulty_level: 2,
-		repeated_times: [3],
-	},
-	{
-		problem_id: "2",
-		title: "Optimize Database Queries",
-		description: "Improve the performance of database queries for faster load times.",
-		difficulty_level: 3,
-		repeated_times: [1],
-	},
-	{
-		problem_id: "3",
-		title: "Update UI Components",
-		description: "Redesign the header and footer components for better user experience.",
-		difficulty_level: 1,
-		repeated_times: [5],
-	},
-];
 
-type SelectedView = "PROBLEM" | "DISCUSSION" | "LEARNING_MATERIAL";
+interface ProblemCardProps {
+	problem: Problem;
+	onSave?: (updated: { id: number; title: string; description: string; difficulty: string; repeatCount: number }) => void;
+}
+
 export default function AdminPage() {
 	const [selectedView, setSelectedView] = useState<SelectedView>("PROBLEM");
+	const dispatch = useAppDispatch();
+	const problems = useSelector((state: any) => state.problem.problems);
+
+	const fetchProblems = async () => {
+		try {
+			const response = await getAllProblem();
+			if (response.result === "success") {
+				const transformedData = response.data.map((problem: any) => ({
+					...problem,
+				}));
+				dispatch(setProblems(transformedData));
+			}
+		} catch (error) {
+			console.error("Error fetching problems:", error);
+		}
+	};
+
 	useEffect(() => {
-		console.log("fetch client");
+		fetchProblems();
 	}, []);
 
 	return (
@@ -74,43 +74,11 @@ export default function AdminPage() {
 				</div>
 
 				{selectedView === "PROBLEM" && (
-					<div className="bg-white p-4 rounded-md shadow-sm">
-						{sampleProblems.map((problem) => (
-							<Card
-								contextType="PROBLEM"
-								id={problem.problem_id}
-								title={problem.title}
-								description={problem.description}
-								difficulty={problem.difficulty_level as Difficulty}
-								repeatCount={problem.repeated_times[0]}
-							/>
-						))}
-					</div>
-				)}
-				{selectedView === "DISCUSSION" && (
-					<div className="bg-white p-4 rounded-md shadow-sm">
-						{sampleProblems.map((problem) => (
-							<Card
-								contextType="PROBLEM"
-								id={problem.problem_id}
-								title={problem.title}
-								description={problem.description}
-								difficulty={problem.difficulty_level as Difficulty}
-								repeatCount={problem.repeated_times[0]}
-							/>
-						))}
-					</div>
-				)}
-				{selectedView === "LEARNING_MATERIAL" && (
-					<div className="bg-white p-4 rounded-md shadow-sm">
-						{sampleProblems.map((problem) => (
-							<Card
-								contextType="PROBLEM"
-								id={problem.problem_id}
-								title={problem.title}
-								description={problem.description}
-								difficulty={problem.difficulty_level as Difficulty}
-								repeatCount={problem.repeated_times[0]}
+					<div className="bg-white p-4 rounded-md shadow-sm space-y-4">
+						{problems.map((problem: Problem) => (
+							<ProblemCard
+								key={problem.problem_id}
+								problem={problem}
 							/>
 						))}
 					</div>
@@ -120,41 +88,26 @@ export default function AdminPage() {
 	);
 }
 
-interface BaseCardProps {
-	id: string;
-	title: string;
-	description: string;
-	created_by?: string;
-	date?: string;
-	type?: string;
-	difficulty?: Difficulty;
-	repeatCount?: number;
-	category?: string[];
-	contextType: "PROBLEM" | "LEARNING_MATERIAL" | "DISCUSSION";
-	onSave?: (updated: Partial<BaseCardProps>) => void;
-}
-
-function Card(props: BaseCardProps) {
+function ProblemCard({ problem, onSave }: ProblemCardProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	const [editTitle, setEditTitle] = useState(props.title);
-	const [editDesc, setEditDesc] = useState(props.description);
-	const [editType, setEditType] = useState(props.type ?? "");
-	const [editDifficulty, setEditDifficulty] = useState(props.difficulty ?? 1);
-	const [editRepeat, setEditRepeat] = useState(props.repeatCount ?? 0);
+	const [editTitle, setEditTitle] = useState(problem.title);
+	const [editDesc, setEditDesc] = useState(problem.description);
+	const [editDifficulty, setEditDifficulty] = useState(problem.dififculty_level);
+	const [editRepeat, setEditRepeat] = useState(problem.repeated_times);
 
 	const handleSave = () => {
-		if (props.onSave) {
-			props.onSave({
-				id: props.id,
-				title: editTitle,
-				description: editDesc,
-				type: editType,
-				difficulty: editDifficulty,
-				repeatCount: editRepeat,
-			});
-		}
+		onSave?.({
+			id: problem.problem_id,
+			title: editTitle,
+			description: editDesc,
+			difficulty: editDifficulty,
+			repeatCount: editRepeat,
+		});
 		setIsOpen(false);
 	};
+
+	const difficultyColor =
+		editDifficulty === "EASY" ? "bg-green-100 text-green-600" : editDifficulty === "MEDIUM" ? "bg-yellow-100 text-yellow-600" : "bg-red-100 text-red-600";
 
 	return (
 		<>
@@ -164,34 +117,13 @@ function Card(props: BaseCardProps) {
 				<div className="flex justify-between items-start gap-2">
 					<div className="flex-1">
 						<h3 className="text-md font-semibold text-gray-800 mb-1">
-							{props.id}. {props.title}
+							{problem.problem_id}. {problem.title}
 						</h3>
-						<p className="text-sm text-gray-600 line-clamp-3">{props.description}</p>
+						<p className="text-sm text-gray-600 line-clamp-3">{problem.description}</p>
 					</div>
-
-					{props.contextType === "PROBLEM" && props.difficulty && (
-						<span
-							className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
-								props.difficulty === 1
-									? "bg-green-100 text-green-600"
-									: props.difficulty === 2
-									? "bg-yellow-100 text-yellow-600"
-									: "bg-red-100 text-red-600"
-							}`}>
-							{["Easy", "Medium", "Hard"][props.difficulty - 1]}
-						</span>
-					)}
+					<span className={`text-xs px-2 py-1 rounded-full font-medium ${difficultyColor}`}>{problem.dififculty_level}</span>
 				</div>
-
-				{props.repeatCount !== undefined && props.contextType === "PROBLEM" && (
-					<p className="mt-2 text-xs text-gray-500">Repeated {props.repeatCount}x</p>
-				)}
-
-				{props.contextType !== "PROBLEM" && (
-					<p className="mt-2 text-xs text-gray-500">
-						Posted by: {props.created_by} {props.date && `• ${props.date}`}
-					</p>
-				)}
+				<p className="mt-2 text-xs text-gray-500">Repeated {problem.repeated_times}x</p>
 			</div>
 
 			{isOpen && (
@@ -203,9 +135,10 @@ function Card(props: BaseCardProps) {
 							×
 						</button>
 
-						<h2 className="text-xl font-bold mb-4">Edit {props.contextType.replace("_", " ").toLowerCase()}</h2>
+						<h2 className="text-xl font-bold mb-4">Edit Problem</h2>
 
 						<div className="space-y-4">
+							{/* Title */}
 							<div>
 								<label className="block text-sm font-medium text-gray-700">Title</label>
 								<input
@@ -216,6 +149,7 @@ function Card(props: BaseCardProps) {
 								/>
 							</div>
 
+							{/* Description */}
 							<div>
 								<label className="block text-sm font-medium text-gray-700">Description</label>
 								<textarea
@@ -225,44 +159,31 @@ function Card(props: BaseCardProps) {
 									className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></textarea>
 							</div>
 
-							{props.contextType === "PROBLEM" && (
-								<>
-									<div>
-										<label className="block text-sm font-medium text-gray-700">Difficulty</label>
-										<select
-											value={editDifficulty}
-											onChange={(e) => setEditDifficulty(Number(e.target.value) as Difficulty)}
-											className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-											<option value={1}>Easy</option>
-											<option value={2}>Medium</option>
-											<option value={3}>Hard</option>
-										</select>
-									</div>
+							{/* Difficulty */}
+							<div>
+								<label className="block text-sm font-medium text-gray-700">Difficulty</label>
+								<select
+									value={editDifficulty}
+									onChange={(e) => setEditDifficulty(e.target.value)}
+									className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+									<option value="EASY">Easy</option>
+									<option value="MEDIUM">Medium</option>
+									<option value="HARD">Hard</option>
+								</select>
+							</div>
 
-									<div>
-										<label className="block text-sm font-medium text-gray-700">Repeated Times</label>
-										<input
-											type="number"
-											value={editRepeat}
-											onChange={(e) => setEditRepeat(Number(e.target.value))}
-											className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-										/>
-									</div>
-								</>
-							)}
+							{/* Repeat Count */}
+							<div>
+								<label className="block text-sm font-medium text-gray-700">Repeated Times</label>
+								<input
+									type="number"
+									value={editRepeat}
+									onChange={(e) => setEditRepeat(Number(e.target.value))}
+									className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+								/>
+							</div>
 
-							{props.contextType !== "PROBLEM" && (
-								<div>
-									<label className="block text-sm font-medium text-gray-700">Type</label>
-									<input
-										type="text"
-										value={editType}
-										onChange={(e) => setEditType(e.target.value)}
-										className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-									/>
-								</div>
-							)}
-
+							{/* Actions */}
 							<div className="flex justify-end gap-3 mt-6">
 								<button
 									onClick={() => setIsOpen(false)}

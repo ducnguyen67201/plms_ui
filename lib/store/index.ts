@@ -14,6 +14,7 @@ store.subscribe(() => {
 	saveState({
 		counter: store.getState().counter,
 		login: store.getState().login,
+		problem: store.getState().problem,
 	});
 });
 
