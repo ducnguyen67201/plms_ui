@@ -21,6 +21,11 @@ const LazyProblemView = dynamic(() => import("./admin_problem_view"), {
 	ssr: false,
 });
 
+const LazyLearningMaterialView = dynamic(() => import("./admin_learning_material_view"), {
+	loading: () => <LoadingState />,
+	ssr: false,
+});
+
 export default function AdminPage() {
 	const dispatch = useAppDispatch();
 	const [selectedView, setSelectedView] = useState<SelectedView>("PROBLEM");
@@ -80,7 +85,7 @@ export default function AdminPage() {
 
 			{selectedView === "PROBLEM" && <LazyProblemView />}
 			{selectedView === "DISCUSSION" && <LazyDiscussionView />}
-			{selectedView === "LEARNING_MATERIAL" && <div>Learning Material View</div>}
+			{selectedView === "LEARNING_MATERIAL" && <LazyLearningMaterialView />}
 		</div>
 	);
 }
