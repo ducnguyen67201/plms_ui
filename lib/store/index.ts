@@ -12,9 +12,10 @@ export const store = configureStore({
 
 store.subscribe(() => {
 	saveState({
-		counter: store.getState().counter,
 		login: store.getState().login,
 		problem: store.getState().problem,
+		discussion: store.getState().discussion,
+		learningMaterial: store.getState().learningMaterial,
 	});
 });
 

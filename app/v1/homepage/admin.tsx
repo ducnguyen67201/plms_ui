@@ -2,13 +2,24 @@
 
 import React, { useEffect, useState } from "react";
 import { getAllProblem } from "@/services/problem";
-import { useSelector } from "react-redux";
+import { getAllDiscussions } from "@/services/discussion";
 import { useAppDispatch } from "@/lib/store/hooks";
 import { setProblems } from "@/lib/store/slices/problemSlice";
-import { useRouter } from "next/navigation";
-import AdminProblemView from "./admin_problem_view";
+import { setDiscussions } from "@/lib/store/slices/discussionSlice";
+import LoadingState from "@/app/component/Loading";
+import dynamic from "next/dynamic";
 
 type SelectedView = "PROBLEM" | "DISCUSSION" | "LEARNING_MATERIAL";
+
+const LazyDiscussionView = dynamic(() => import("./admin_discussion_view"), {
+	loading: () => <LoadingState />,
+	ssr: false,
+});
+
+const LazyProblemView = dynamic(() => import("./admin_problem_view"), {
+	loading: () => <LoadingState />,
+	ssr: false,
+});
 
 export default function AdminPage() {
 	const dispatch = useAppDispatch();
@@ -28,8 +39,23 @@ export default function AdminPage() {
 		}
 	};
 
+	const fetchDiscussions = async () => {
+		try {
+			const response = await getAllDiscussions();
+			if (response.result === "success") {
+				const transformedData = response.data.map((discussion: any) => ({
+					...discussion,
+				}));
+				dispatch(setDiscussions(transformedData));
+			}
+		} catch (error) {
+			console.error("Error fetching discussions:", error);
+		}
+	};
+
 	useEffect(() => {
 		fetchProblems();
+		fetchDiscussions();
 	}, []);
 
 	return (
@@ -52,8 +78,8 @@ export default function AdminPage() {
 				</button>
 			</div>
 
-			{selectedView === "PROBLEM" && <AdminProblemView />}
-			{selectedView === "DISCUSSION" && <div>Discussion View</div>}
+			{selectedView === "PROBLEM" && <LazyProblemView />}
+			{selectedView === "DISCUSSION" && <LazyDiscussionView />}
 			{selectedView === "LEARNING_MATERIAL" && <div>Learning Material View</div>}
 		</div>
 	);
