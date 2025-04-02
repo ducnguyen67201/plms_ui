@@ -3,9 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { getAllProblem } from "@/services/problem";
 import { getAllDiscussions } from "@/services/discussion";
+import { getAllLearningMaterialProblem } from "@/services/learning_material";
 import { useAppDispatch } from "@/lib/store/hooks";
+
 import { setProblems } from "@/lib/store/slices/problemSlice";
 import { setDiscussions } from "@/lib/store/slices/discussionSlice";
+import { setLearningMaterials } from "@/lib/store/slices/learningMaterialSlice";
+
 import LoadingState from "@/app/component/Loading";
 import dynamic from "next/dynamic";
 
@@ -58,9 +62,24 @@ export default function AdminPage() {
 		}
 	};
 
+	const fetchLearningMaterials = async () => {
+		try {
+			const response = await getAllLearningMaterialProblem();
+			if (response.result === "success") {
+				const transformedData = response.data.map((material: any) => ({
+					...material,
+				}));
+				dispatch(setLearningMaterials(transformedData));
+			}
+		} catch (error) {
+			console.error("Error fetching learning materials:", error);
+		}
+	};
+
 	useEffect(() => {
 		fetchProblems();
 		fetchDiscussions();
+		fetchLearningMaterials();
 	}, []);
 
 	return (

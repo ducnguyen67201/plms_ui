@@ -10,17 +10,18 @@ interface LearningMaterialCardProps {
 }
 
 export default function AdminLearningMaterialView() {
-	const materials = useSelector((state: any) => state.learningMaterial.materials); // Adjust slice name as needed
-	const [filterType, setFilterType] = useState("");
+	const materials = useSelector((state: any) => state.learningMaterial.materials);
+	const [filterTitle, setFilterTitle] = useState("");
+	const [filterContent, setFilterContent] = useState("");
 	const [filterPostedBy, setFilterPostedBy] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const materialsPerPage = 10;
 
 	const filteredMaterials = materials.filter((material: LearningMaterial) => {
-		return (
-			(filterType === "" || material.material_type.toLowerCase().includes(filterType.toLowerCase())) &&
-			(filterPostedBy === "" || material.posted_by.toLowerCase().includes(filterPostedBy.toLowerCase()))
-		);
+		const matchesTitle = material.title.toLowerCase().includes(filterTitle.toLowerCase());
+		const matchesContent = material.content.toLowerCase().includes(filterContent.toLowerCase());
+		const matchesPostedBy = material.posted_by.toLowerCase().includes(filterPostedBy.toLowerCase());
+		return matchesTitle && matchesContent && matchesPostedBy;
 	});
 
 	const totalPages = Math.ceil(filteredMaterials.length / materialsPerPage);
@@ -28,7 +29,7 @@ export default function AdminLearningMaterialView() {
 
 	useEffect(() => {
 		setCurrentPage(1); // reset page on filter change
-	}, [filterType, filterPostedBy]);
+	}, [filterTitle, filterContent, filterPostedBy]);
 
 	const handlePrevious = () => {
 		if (currentPage > 1) setCurrentPage((prev) => prev - 1);
@@ -45,20 +46,18 @@ export default function AdminLearningMaterialView() {
 					<tr>
 						<th className="text-left p-4">ID</th>
 						<th className="text-left p-4">Title</th>
-						<th className="text-left p-4">Type</th>
 						<th className="text-left p-4">Posted By</th>
 						<th className="text-left p-4">Content</th>
 						<th className="text-left p-4">Date</th>
 					</tr>
 					<tr className="bg-white">
 						<th></th>
-						<th></th>
 						<th className="p-4">
 							<input
 								type="text"
-								value={filterType}
-								onChange={(e) => setFilterType(e.target.value)}
-								placeholder="Filter by type"
+								value={filterTitle}
+								onChange={(e) => setFilterTitle(e.target.value)}
+								placeholder="Filter title"
 								className="text-sm w-full rounded border border-gray-300 px-2 py-1"
 							/>
 						</th>
@@ -67,11 +66,19 @@ export default function AdminLearningMaterialView() {
 								type="text"
 								value={filterPostedBy}
 								onChange={(e) => setFilterPostedBy(e.target.value)}
-								placeholder="Filter by poster"
+								placeholder="Filter posted by"
 								className="text-sm w-full rounded border border-gray-300 px-2 py-1"
 							/>
 						</th>
-						<th></th>
+						<th className="p-4">
+							<input
+								type="text"
+								value={filterContent}
+								onChange={(e) => setFilterContent(e.target.value)}
+								placeholder="Filter content"
+								className="text-sm w-full rounded border border-gray-300 px-2 py-1"
+							/>
+						</th>
 						<th></th>
 					</tr>
 				</thead>
@@ -79,7 +86,7 @@ export default function AdminLearningMaterialView() {
 					{paginatedMaterials.length === 0 ? (
 						<tr>
 							<td
-								colSpan={6}
+								colSpan={5}
 								className="text-center py-6 text-gray-500 font-medium">
 								No materials found matching your filters.
 							</td>
@@ -124,7 +131,6 @@ function LearningMaterialCard({ material }: LearningMaterialCardProps) {
 			onClick={() => router.push(`/v1/admin/learning/${material.material_id}`)}>
 			<td className="p-4">{material.material_id}</td>
 			<td className="p-4 font-medium text-gray-900">{material.title}</td>
-			<td className="p-4">{material.material_type}</td>
 			<td className="p-4">{material.posted_by}</td>
 			<td className="p-4 max-w-[300px] truncate text-gray-700">{material.content}</td>
 			<td className="p-4">{material.material_date}</td>
