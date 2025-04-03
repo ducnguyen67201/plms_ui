@@ -16,7 +16,7 @@ const Navbar = () => {
 					</Link>
 
 					<div className="hidden md:flex space-x-6 items-center">
-						<Link
+						{/* <Link
 							href="/"
 							className="hover:text-primary transition">
 							Problems
@@ -30,7 +30,7 @@ const Navbar = () => {
 							href="/contact"
 							className="hover:text-primary transition">
 							Learning Material
-						</Link>
+						</Link> */}
 						<Link
 							onClick={() => logout()}
 							href="/"
@@ -71,7 +71,7 @@ const Navbar = () => {
 
 			{isOpen && (
 				<div className="md:hidden px-4 pb-4 space-y-2">
-					<Link
+					{/* <Link
 						href="/"
 						className="block hover:text-primary">
 						Home
@@ -85,7 +85,7 @@ const Navbar = () => {
 						href="/contact"
 						className="block hover:text-primary">
 						Contact
-					</Link>
+					</Link> */}
 					<Link
 						onClick={() => logout()}
 						href="/"

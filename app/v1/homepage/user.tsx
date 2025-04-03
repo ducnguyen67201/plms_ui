@@ -1,3 +1,17 @@
+"use client";
+import { useState } from "react";
+import MonacoCodeEditor from "@/app/component/CodeEditor";
 export default function UserPage() {
-	return <div className="m-[100px] bg-amber-200 w-full h-[100vh]">userPage</div>;
+	const [code, setCode] = useState<string>("");
+	return (
+		<div className="p-4">
+			<h2>Online Code Editor</h2>
+			<MonacoCodeEditor
+				value={code}
+				onChange={setCode}
+				language="python"
+				height="500px"
+			/>
+		</div>
+	);
 }
