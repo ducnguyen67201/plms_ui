@@ -17,7 +17,7 @@ interface TestCase {
 	expected_output: string;
 	created_at: string;
 	updated_at: string;
-	is_active: boolean;
+	is_active: string;
 }
 
 export interface ProblemWithTestCase extends Problem {
@@ -56,5 +56,31 @@ export async function getProblemById(problemId: number) {
 		return res;
 	} else {
 		throw new Error(res.message || "Failed to fetch problem by ID");
+	}
+}
+
+export async function saveProblem(problem: Problem) {
+	const res = await apiClient<ProblemResponse>(`/problem/save`, {
+		method: "POST",
+		body: JSON.stringify(problem),
+	});
+
+	if (res.result == "success") {
+		return res;
+	} else {
+		throw new Error(res.message || "Failed to save problem");
+	}
+}
+
+export async function saveTestCase(testCase: TestCase) {
+	const res = await apiClient<ProblemResponse>(`/testcase/save`, {
+		method: "POST",
+		body: JSON.stringify(testCase),
+	});
+
+	if (res.result == "success") {
+		return res;
+	} else {
+		throw new Error(res.message || "Failed to save test case");
 	}
 }

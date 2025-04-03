@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { ProblemWithTestCase } from "@/services/problem";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { saveProblem, saveTestCase } from "@/services/problem";
 
 export default function ProblemDetailsClient({ problem }: { problem: ProblemWithTestCase }) {
 	const [formData, setFormData] = useState(problem);
@@ -21,8 +22,9 @@ export default function ProblemDetailsClient({ problem }: { problem: ProblemWith
 
 	const removeTestCase = (index: number) => {
 		if (window.confirm(`Are you sure you want to delete Test Case #${index + 1}? This action cannot be undone.`)) {
-			const updated = editingTestCases.filter((_, i) => i !== index);
-			setEditingTestCases(updated);
+			editingTestCases[index].is_active = "N";
+			editingTestCases[index].problem_id = formData.problem_id;
+			saveTestCase(editingTestCases[index]);
 		}
 	};
 
@@ -30,9 +32,14 @@ export default function ProblemDetailsClient({ problem }: { problem: ProblemWith
 		setExpandedIndex((prev) => (prev === index ? null : index));
 	};
 
-	const handleSave = () => {
-		console.log("Saving problem:", formData);
-		console.log("Saving test cases:", editingTestCases);
+	const handleSaveProblem = () => {
+		saveProblem(formData);
+	};
+
+	const handleTestCaseSave = (index: number) => {
+		const testCase = editingTestCases[index];
+		testCase.problem_id = formData.problem_id;
+		saveTestCase(testCase);
 	};
 
 	return (
@@ -124,7 +131,7 @@ export default function ProblemDetailsClient({ problem }: { problem: ProblemWith
 									<div>
 										<label className="block font-semibold">Active?</label>
 										<select
-											value={test.is_active ? "Y" : "N"}
+											value={test.is_active === "Y" ? "Y" : "N"}
 											onChange={(e) => updateTestCase(index, "is_active", e.target.value)}
 											className="w-full p-2 border rounded">
 											<option value="Y">Yes</option>
@@ -132,11 +139,18 @@ export default function ProblemDetailsClient({ problem }: { problem: ProblemWith
 										</select>
 									</div>
 
-									<button
-										onClick={() => removeTestCase(index)}
-										className="text-red-500 hover:underline text-sm">
-										Delete Test Case
-									</button>
+									<div className="flex justify-between items-center">
+										<button
+											onClick={() => removeTestCase(index)}
+											className="text-red-500 hover:underline text-sm">
+											Delete Test Case
+										</button>
+										<button
+											onClick={() => handleTestCaseSave(index)}
+											className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">
+											Save Test Case
+										</button>
+									</div>
 								</div>
 							)}
 						</div>
@@ -146,9 +160,9 @@ export default function ProblemDetailsClient({ problem }: { problem: ProblemWith
 
 			<div className="mt-6">
 				<button
-					onClick={handleSave}
+					onClick={handleSaveProblem}
 					className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">
-					Save Changes
+					Save Problem
 				</button>
 			</div>
 		</div>
