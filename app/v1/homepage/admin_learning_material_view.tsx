@@ -20,7 +20,7 @@ export default function AdminLearningMaterialView() {
 	const filteredMaterials = materials.filter((material: LearningMaterial) => {
 		const matchesTitle = material.title.toLowerCase().includes(filterTitle.toLowerCase());
 		const matchesContent = material.content.toLowerCase().includes(filterContent.toLowerCase());
-		const matchesPostedBy = material.posted_by.toLowerCase().includes(filterPostedBy.toLowerCase());
+		const matchesPostedBy = material.posted_by.toString().toLowerCase().includes(filterPostedBy.toLowerCase());
 		return matchesTitle && matchesContent && matchesPostedBy;
 	});
 
