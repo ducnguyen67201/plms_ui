@@ -37,6 +37,14 @@ interface ProblemResponse {
 	data: any;
 }
 
+interface ProblemSubmitResponse {
+	result: string;
+	message: string;
+	data: {
+		job_id: string;
+	};
+}
+
 export async function getAllProblem() {
 	const res = await apiClient<GetAllProblemsResponse>("/problem/all", {
 		method: "POST",
@@ -87,4 +95,55 @@ export async function saveTestCase(testCase: TestCase) {
 	}
 }
 
-export async function submitSolution(solution: { problem_id: number; code: string }) {}
+export async function submitSolution(solution: { problem_id: number; code: string }) {
+	const res = await apiClient<ProblemSubmitResponse>(`/problem/submit`, {
+		method: "POST",
+		body: JSON.stringify(solution),
+	});
+
+	if (res.result == "success") {
+		return res;
+	} else {
+		throw new Error(res.message || "Failed to submit solution");
+	}
+}
+export async function poolJobResult(job_id: string, onComplete: (result: string) => void, onError?: (error: string) => void) {
+	const interval = setInterval(async () => {
+		try {
+			const res = await getJobResult(job_id);
+			// Handle completed result
+			if (res.result === "success") {
+				clearInterval(interval);
+				const msg = res.data?.output || "Code executed successfully!";
+				onComplete(msg);
+			}
+			// Handle failure
+			else if (res.result === "failed") {
+				clearInterval(interval);
+				const msg = res.message || "Your code is incorrect.";
+				onError?.(msg);
+			}
+		} catch (err: any) {
+			console.error("Error polling job result:", err);
+			clearInterval(interval);
+			onError?.("Something went wrong while checking your result.");
+		}
+	}, 500);
+}
+
+export async function getJobResult(job_id: string) {
+	const res = await apiClient<ProblemResponse>(`/problem/job/${job_id}`, {
+		method: "POST",
+	});
+
+	if (res.result == "success") {
+		return res.data;
+	} else if (res.result == "failed") {
+		return {
+			result: "failed",
+			message: res.message || "Your code is incorrect.",
+		};
+	} else {
+		throw new Error(res.message || "Failed to fetch job result");
+	}
+}
