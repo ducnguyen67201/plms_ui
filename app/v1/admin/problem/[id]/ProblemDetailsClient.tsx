@@ -66,6 +66,26 @@ export default function ProblemDetailsClient({ problem }: { problem: ProblemWith
 				/>
 			</div>
 
+			<div className="mb-4">
+				<label className="block font-semibold">Method Name</label>
+				<input
+					type="text"
+					value={formData.method_name}
+					onChange={(e) => updateField("title", e.target.value)}
+					className="w-full p-2 border rounded"
+				/>
+			</div>
+
+			<div className="mb-4">
+				<label className="block font-semibold">Skeleton Code</label>
+				<textarea
+					value={formData.skeleton_code}
+					onChange={(e) => updateField("description", e.target.value)}
+					className="w-full p-2 border rounded"
+					rows={4}
+				/>
+			</div>
+
 			<div className="grid grid-cols-2 gap-4 mb-6">
 				<div>
 					<label className="block font-semibold">Difficulty</label>

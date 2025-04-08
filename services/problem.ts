@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/ApiClient";
 
-interface Problem {
+export interface Problem {
 	problem_id: number | null;
 	contest_id: number | null;
 	title: string;
@@ -8,9 +8,11 @@ interface Problem {
 	difficulty_level: string;
 	repeated_times: number;
 	type: string;
+	method_name: string;
+	skeleton_code: string;
 }
 
-interface TestCase {
+export interface TestCase {
 	test_case_id: number | null;
 	problem_id: number | null;
 	input: string;
@@ -84,3 +86,5 @@ export async function saveTestCase(testCase: TestCase) {
 		throw new Error(res.message || "Failed to save test case");
 	}
 }
+
+export async function submitSolution(solution: { problem_id: number; code: string }) {}

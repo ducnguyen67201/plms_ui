@@ -14,6 +14,8 @@ interface Problem {
 	difficulty_level: string;
 	repeated_times: number;
 	type: string;
+	method_name: string;
+	skeleton_code: string;
 }
 
 interface ProblemState {
