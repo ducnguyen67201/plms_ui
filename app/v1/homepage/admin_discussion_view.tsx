@@ -114,10 +114,13 @@ export default function AdminDiscussionView() {
 
 function DiscussionCard({ discussion }: DiscussionCardProps) {
 	const router = useRouter();
+	const userRole = useSelector((state: any) => state.login.role);
 	return (
 		<tr
 			className="hover:bg-gray-100 transition duration-200 cursor-pointer"
-			onClick={() => router.push(`/v1/admin/discussion/${discussion.discussion_id}`)}>
+			onClick={() =>
+				router.push(userRole === "admin" ? `/v1/admin/discussion/${discussion.discussion_id}` : `/v1/user/discussion/${discussion.discussion_id}`)
+			}>
 			<td className="p-4">{discussion.discussion_id}</td>
 			<td className="p-4 max-w-[250px] truncate font-semibold text-gray-900">{discussion.title}</td>
 			<td className="p-4 max-w-[400px] truncate text-gray-700">{discussion.content}</td>

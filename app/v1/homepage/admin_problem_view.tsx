@@ -120,6 +120,7 @@ export default function AdminProblemView() {
 
 function ProblemCard({ problem }: ProblemCardProps) {
 	const router = useRouter();
+	const userRole = useSelector((state: any) => state.user.role);
 	return (
 		<tr
 			className="hover:bg-gray-100 transition duration-200 cursor-pointer"
