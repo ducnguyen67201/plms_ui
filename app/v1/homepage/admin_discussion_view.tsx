@@ -119,7 +119,7 @@ function DiscussionCard({ discussion }: DiscussionCardProps) {
 		<tr
 			className="hover:bg-gray-100 transition duration-200 cursor-pointer"
 			onClick={() =>
-				router.push(userRole === "admin" ? `/v1/admin/discussion/${discussion.discussion_id}` : `/v1/user/discussion/${discussion.discussion_id}`)
+				router.push(userRole === "Admin" ? `/v1/admin/discussion/${discussion.discussion_id}` : `/v1/user/discussion/${discussion.discussion_id}`)
 			}>
 			<td className="p-4">{discussion.discussion_id}</td>
 			<td className="p-4 max-w-[250px] truncate font-semibold text-gray-900">{discussion.title}</td>

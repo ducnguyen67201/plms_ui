@@ -128,7 +128,7 @@ function LearningMaterialCard({ material }: LearningMaterialCardProps) {
 	return (
 		<tr
 			className="hover:bg-gray-100 transition duration-200 cursor-pointer"
-			onClick={() => router.push(userRole === "admin" ? `/v1/admin/learning/${material.material_id}` : `/v1/user/learning/${material.material_id}`)}>
+			onClick={() => router.push(userRole === "Admin" ? `/v1/admin/learning/${material.material_id}` : `/v1/user/learning/${material.material_id}`)}>
 			<td className="p-4">{material.material_id}</td>
 			<td className="p-4 font-medium text-gray-900">{material.title}</td>
 			<td className="p-4">{material.posted_by}</td>
